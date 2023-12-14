@@ -1,0 +1,55 @@
+name: BmiCalculator CICD
+
+on: 
+   push: 
+      branches:
+         - master
+
+   pull_request:
+      branches:
+         - master
+
+   schedule:
+     - cron:  '30 14 * * MON-FRI'
+jobs:
+     build: 
+       runs-on: windows-latest
+       steps:
+         - name: checkout repository
+           uses: actions/checkout@v3
+
+         - name: Download and setup JDK
+           uses: actions/setup-java@v3
+           with:
+             java-version: '11'
+             distributor: 'temirin'
+           continue-on-error: true
+         - name: Download and setup maven
+           uses: stCarolas/setup-maven@4.1
+           with:
+             maven-version: 3.8.2
+         - name: Build using maven 
+           run: mvn clean install
+     test: 
+       needs: build
+       runs-on: ${{ need.build.outputs.runs-on }}
+       steps:
+         - name: Run Test
+           run: mvn test "-Dcucumber.filter.tags=@run"
+           env: 
+             Display: :19
+             CUCUMBER_PUBLISH_TOKEN: 5f0413f0-9244-49d1-8b58-bed19527e602
+             continue-on-error: true
+         - uses: actions/upload-artifact@v3
+           if: always()
+           with:
+              name: Report
+              path: test-output
+              retention-days: 30
+         
+     
+     
+  
+
+    
+      
