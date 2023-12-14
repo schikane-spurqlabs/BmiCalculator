@@ -30,11 +30,8 @@ jobs:
              maven-version: 3.8.2
          - name: Build using maven 
            run: mvn clean install
-     test: 
-       needs: build
-       runs-on: ${{ need.build.outputs.runs-on }}
-       steps:
-         - name: Run Test
+    
+         - name: Run validation tests
            run: mvn test "-Dcucumber.filter.tags=@run"
            env: 
              Display: :19
